@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = g++
-CCFLAGS = -Wall -g -DDFT_SIZE=512 -DDECIM=16
+CCFLAGS = -Wall -DDFT_SIZE=512 -DDECIM=16
 
 # Source files
 SRCS = fft.cpp fftInput.cpp main.cpp micInput.cpp fileInput.cpp

@@ -86,8 +86,8 @@ int main(int argc, char *argv[]) {
                 size_t i2 = (i - 1)  % DFT_SIZE;
                 std::complex<float> value = (*fftData)[i2];
                 float mag = std::log(std::abs(value) + 1);
-                float x = cos(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
-                float y = sin(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
+                float x = sin(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
+                float y = cos(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
                 vertexArray[i].position = sf::Vector2f(x, y);
                 vertexArray[i].color = HStoRGB(std::clamp(mag*4, 0.f, 2*M_PIf), std::sqrt(mag));
             }

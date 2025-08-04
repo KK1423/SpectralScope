@@ -8,12 +8,13 @@ using namespace sf;
 // sinc filter coefficients
 const std::array<float, DECIM*FFTInput::filterSize> FFTInput::sincCoefficients = [](){
     std::array <float, DECIM*filterSize> ret;
+    const float excessBandwidth = 1.5;
     for (size_t i = 0; i < DECIM*filterSize; ++i) {
         float x = (static_cast<float>(i) - 2*DECIM);
         if (x == 0.0f) {
-            ret[i] = 1.f/DECIM;
+            ret[i] = excessBandwidth * 1.f/DECIM;
         } else {
-            ret[i] = std::sin(M_PI * x / DECIM) / (M_PI * x);
+            ret[i] = std::sin(excessBandwidth * M_PI * x / DECIM) / (M_PI * x);
         }
     }
     return ret;
