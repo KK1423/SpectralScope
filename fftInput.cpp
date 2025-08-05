@@ -10,7 +10,7 @@ const std::array<float, DECIM*FFTInput::filterSize> FFTInput::sincCoefficients =
     std::array <float, DECIM*filterSize> ret;
     const float excessBandwidth = 1.5;
     for (size_t i = 0; i < DECIM*filterSize; ++i) {
-        float x = (static_cast<float>(i) - 2*DECIM);
+        float x = (static_cast<float>(i) - DECIM*filterSize/2);
         if (x == 0.0f) {
             ret[i] = excessBandwidth * 1.f/DECIM;
         } else {
@@ -38,10 +38,9 @@ std::optional<std::array<std::complex<float>, DFT_SIZE>> FFTInput::getFFT() {
         #endif
         for (size_t j = 0; j < sincCoefficients.size(); j++)
         {
-            size_t cIndex = i * DECIM + j;
-            if (cIndex >= BUFFER_SIZE) {
-                break;
-            }
+            size_t cIndex = (i * DECIM
+                           + j - sincCoefficients.size()/2
+                           + sampleQueue.size()) % sampleQueue.size();
             fftData[i] += sampleQueue[cIndex] * sincCoefficients[j];
         }
     }

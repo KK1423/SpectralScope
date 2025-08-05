@@ -46,6 +46,8 @@ array<float, DFT_SIZE> cos_window = []()
         //window[i] = 0.5f * sin(f / 2);
         // rect
         //window[i] = 1.0f;
+        // none 
+        //window[i] = 1.0;
     }
     return window;
 }();

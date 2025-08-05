@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
     }
     window.setView(sf::View{{0, 0}, {10, 10}});
     window.setFramerateLimit(100);
+    float bassAccumulator = 0;
     while (window.isOpen()) {
         std::optional<sf::Event> event;
         while (event = window.pollEvent()) {
@@ -80,17 +81,29 @@ int main(int argc, char *argv[]) {
         auto fftData = fftInput->getFFT();
         if(fftData.has_value())
         {
+            std::array<float, DFT_SIZE> mag;
+            for (size_t i = 0; i < mag.size(); ++i) {
+                mag[i] = std::log(std::abs((*fftData)[i]) + 1);
+            }
+
+            bassAccumulator += (M_PI_2f-std::fmod(bassAccumulator + M_PI_2f, M_PIf)) * 0.2f;
+            for (size_t i = 0; i < DFT_SIZE/32; i++)
+            {
+                bassAccumulator += std::max(mag[i] - 2.f, 0.f) * 0.05f;
+            }
+            float tilt = sin(bassAccumulator) * M_PI/100;
+            
+
             window.clear();
             sf::VertexArray vertexArray(sf::PrimitiveType::TriangleFan, DFT_SIZE + 2);
             vertexArray[0].position = sf::Vector2f(0, 0);
             for (size_t i = 1; i < DFT_SIZE + 2; ++i) {
                 size_t i2 = (i - 1)  % DFT_SIZE;
-                std::complex<float> value = (*fftData)[i2];
-                float mag = std::log(std::abs(value) + 1);
-                float x = sin(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
-                float y = cos(2 * M_PIf * i2 / DFT_SIZE) * (mag+1.5);
+                float graphValue = mag[i2];
+                float x = sin(2 * M_PIf * i2 / DFT_SIZE + tilt) * (graphValue+1.5);
+                float y = cos(2 * M_PIf * i2 / DFT_SIZE + tilt) * (graphValue+1.5);
                 vertexArray[i].position = sf::Vector2f(x, y);
-                vertexArray[i].color = HStoRGB(std::clamp(mag*4, 0.f, 2*M_PIf), std::sqrt(mag));
+                vertexArray[i].color = HStoRGB(std::clamp(graphValue*4, 0.f, 2*M_PIf), std::sqrt(graphValue));
             }
             window.draw(vertexArray);
             window.display();
