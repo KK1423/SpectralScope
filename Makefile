@@ -24,6 +24,9 @@ DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	CCFLAGS += -g3
 	LDFLAGS += -g3
+else
+	CCFLAGS += -O3
+	LDFLAGS += -O3
 endif
 
 # Update CCFLAGS and LDFLAGS

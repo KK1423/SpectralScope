@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
         fftInput = std::make_unique<MicInput>();
     }
     window.setView(sf::View{{0, 0}, {10, 10}});
+    window.setFramerateLimit(100);
     while (window.isOpen()) {
         std::optional<sf::Event> event;
         while (event = window.pollEvent()) {

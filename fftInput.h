@@ -11,7 +11,6 @@ class FFTInput {
 protected:
     std::mutex mutex;
     size_t savedSampleCount = 0;
-    sf::Clock lastFFT;
     static const size_t BUFFER_SIZE = DFT_SIZE * DECIM;
     std::array<float, BUFFER_SIZE> sampleQueue;
     static const size_t filterSize = 12;

@@ -19,7 +19,7 @@ MicInput::~MicInput() {
 
 bool MicInput::onProcessSamples(const std::int16_t* samples, std::size_t sampleCount)
 {
-    std::vector<float> floatSamples(sampleCount);
+    floatSamples.resize(sampleCount);
     for (size_t i = 0; i < sampleCount; ++i) {
         floatSamples[i] = static_cast<float>(samples[i] >> 8) / 256.0f;
     }

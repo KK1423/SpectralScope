@@ -21,10 +21,6 @@ const std::array<float, DECIM*FFTInput::filterSize> FFTInput::sincCoefficients =
 }();
 
 std::optional<std::array<std::complex<float>, DFT_SIZE>> FFTInput::getFFT() {
-    if (lastFFT.getElapsedTime().asMilliseconds() < 10) {
-        return {};
-    }
-    lastFFT.restart();
     std::lock_guard<std::mutex> lock(mutex);
     if (savedSampleCount < BUFFER_SIZE)
     {
@@ -52,8 +48,6 @@ std::optional<std::array<std::complex<float>, DFT_SIZE>> FFTInput::getFFT() {
 
     return DFT(fftData);
 }
-
-#include <iostream>
 
 void FFTInput::ingestSamples(const float* samples, std::size_t sampleCount) {
     std::lock_guard<std::mutex> lock(mutex);
