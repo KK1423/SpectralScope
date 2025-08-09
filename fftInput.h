@@ -22,6 +22,7 @@ protected:
 public:
     virtual ~FFTInput() = default;
     std::optional<std::array<std::complex<float>, DFT_SIZE>> getFFT();
+    virtual float getTime() {return 0.0f;};
     virtual void handleEvent(const sf::Event& event) {}
 
 };

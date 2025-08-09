@@ -26,6 +26,8 @@ public:
     FileInput &operator=(const FileInput &) = delete;
     std::unique_ptr<sf::Music> source;
 
+    virtual float getTime() override;
+
 protected:
     std::vector<float> sampleBuffer;
     std::size_t samplesProcessed = 0;

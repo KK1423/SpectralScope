@@ -27,11 +27,10 @@ void FileInput::effectProcessor(const float *inputFrames, unsigned int &inputFra
 
 void FileInput::handleEvent(const sf::Event &event)
 {
-    if (event.is<sf::Event::KeyPressed>())
+    if (const auto* keypressEvent = event.getIf<sf::Event::KeyPressed>())
     {
-        auto keypressEvent = *event.getIf<sf::Event::KeyPressed>();
         using sf::Keyboard::Key;
-        switch (keypressEvent.code)
+        switch (keypressEvent->code)
         {
         case Key::Space:
             if (source->getStatus() == sf::SoundStream::Status::Playing)
@@ -43,6 +42,7 @@ void FileInput::handleEvent(const sf::Event &event)
                 source->play();
             }
             break;
+
         case Key::Left:
         case Key::Right:
         {
@@ -51,15 +51,12 @@ void FileInput::handleEvent(const sf::Event &event)
                 source->play();
             }
             auto currentTime = source->getPlayingOffset();
-            int seekSize = keypressEvent.control ? 30 : 5;
-            if (keypressEvent.code == Key::Left)
-            {
-                currentTime -= sf::seconds(seekSize);
-            }
-            else
-            {
-                currentTime += sf::seconds(seekSize);
-            }
+            sf::Time seekOffset = sf::seconds(keypressEvent->control ? 30 : 5);
+            if (keypressEvent->code == Key::Left)
+                seekOffset = -seekOffset;
+            
+            currentTime += seekOffset;
+
             if (currentTime < sf::Time::Zero)
             {
                 currentTime = sf::Time::Zero;
@@ -76,4 +73,9 @@ void FileInput::handleEvent(const sf::Event &event)
             break;
         }
     }
+}
+
+float FileInput::getTime()
+{
+    return static_cast<float>(source->getPlayingOffset().asMilliseconds())/source->getDuration().asMilliseconds();
 }

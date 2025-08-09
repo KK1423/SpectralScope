@@ -55,7 +55,8 @@ int main(int argc, char *argv[]) {
         std::cout << "Using microphone input" << std::endl;
         fftInput = std::make_unique<MicInput>();
     }
-    window.setView(sf::View{{0, 0}, {10, 10}});
+    sf::View fftView = {{0, 0}, {10, 10}};
+    sf::View barView = window.getDefaultView();
     window.setFramerateLimit(100);
     float bassAccumulator = 0;
     while (window.isOpen()) {
@@ -66,15 +67,15 @@ int main(int argc, char *argv[]) {
                 window.close();
                 continue;
             }
-            if  (event->is<sf::Event::Resized>()) {
-                sf::View view = window.getView();
-                float aspectRatio = static_cast<float>(event->getIf<sf::Event::Resized>()->size.x) / event->getIf<sf::Event::Resized>()->size.y;
+            if  (auto* resize = event->getIf<sf::Event::Resized>()) {
+                float aspectRatio = static_cast<float>(resize->size.x) / resize->size.y;
                 if (aspectRatio > 1) {
-                    view.setSize({10 * aspectRatio, 10});
+                    fftView.setSize({10 * aspectRatio, 10});
                 } else {
-                    view.setSize({10, 10 / aspectRatio});
+                    fftView.setSize({10, 10 / aspectRatio});
                 }
-                window.setView(view);
+                barView = sf::View{sf::FloatRect{{0, 0}, (sf::Vector2f) resize->size}};
+                window.setView(fftView);
                 window.display();
                 continue;
             }
@@ -97,18 +98,29 @@ int main(int argc, char *argv[]) {
             float tilt = sin(bassAccumulator) * M_PI/100;
             
 
-            window.clear();
             sf::VertexArray vertexArray(sf::PrimitiveType::TriangleFan, DFT_SIZE + 2);
             vertexArray[0].position = sf::Vector2f(0, 0);
             for (size_t i = 1; i < DFT_SIZE + 2; ++i) {
                 size_t i2 = (i - 1)  % DFT_SIZE;
                 float graphValue = mag[i2];
-                float x = sin(2 * M_PIf * i2 / DFT_SIZE + tilt) * (graphValue+1.5);
-                float y = cos(2 * M_PIf * i2 / DFT_SIZE + tilt) * (graphValue+1.5);
-                vertexArray[i].position = sf::Vector2f(x, y);
+                vertexArray[i].position = sf::Vector2f(graphValue + 1.5, sf::radians(2 * M_PIf * i2 / DFT_SIZE + M_PI_2 + tilt));
                 vertexArray[i].color = HStoRGB(std::clamp(graphValue*4, 0.f, 2*M_PIf), std::sqrt(graphValue));
             }
+
+            sf::Vector2f windowSize = barView.getSize();
+            float barHeight = std::max(10.f, windowSize.y * 0.015f);
+            sf::RectangleShape rect({fftInput->getTime() * windowSize.x, barHeight});
+            rect.setOrigin(rect.getPoint(3));
+            rect.setPosition({0, windowSize.y});
+            rect.setFillColor(sf::Color::White);
+
+            window.clear();
+            window.setView(barView);
+            window.draw(rect);
+
+            window.setView(fftView);
             window.draw(vertexArray);
+
             window.display();
         }
     }

@@ -19,10 +19,9 @@ MicInput::~MicInput() {
 
 void MicInput::handleEvent(const sf::Event& event)
 {
-    if (event.is<sf::Event::KeyPressed>()) {
-        auto keypressEvent = *event.getIf<sf::Event::KeyPressed>();
+    if (const auto* keypressEvent = event.getIf<sf::Event::KeyPressed>()) {
         using sf::Keyboard::Key;
-        switch (keypressEvent.code)
+        switch (keypressEvent->code)
         {
         case Key::Up:
             gain *= 1.1f;
