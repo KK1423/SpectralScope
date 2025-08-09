@@ -1,0 +1,8 @@
+music/*
+.vscode/*
+*.wav
+*.mp3
+demos
+compile_commands.json
+main
+*.o

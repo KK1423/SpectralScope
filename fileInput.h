@@ -6,7 +6,7 @@
 class FileInput : public FFTInput
 {
 public:
-    explicit FileInput(std::unique_ptr<sf::SoundStream> &&source) : source(std::move(source))
+    explicit FileInput(std::unique_ptr<sf::Music> &&source) : source(std::move(source))
     {
         if (!this->source)
         {
@@ -24,12 +24,15 @@ public:
 
     FileInput(const FileInput &) = delete;
     FileInput &operator=(const FileInput &) = delete;
-    std::unique_ptr<sf::SoundStream> source;
+    std::unique_ptr<sf::Music> source;
 
+protected:
     std::vector<float> sampleBuffer;
     std::size_t samplesProcessed = 0;
 
     void effectProcessor(const float *inputFrames, unsigned int &inputFrameCount,
                                  float *outputFrames, unsigned int &outputFrameCount,
                                  unsigned int frameChannelCount);
+
+    virtual void handleEvent(const sf::Event &event) override;
 };

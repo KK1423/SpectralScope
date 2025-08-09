@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 
             if (event->is<sf::Event::Closed>()) {
                 window.close();
+                continue;
             }
             if  (event->is<sf::Event::Resized>()) {
                 sf::View view = window.getView();
@@ -75,7 +76,9 @@ int main(int argc, char *argv[]) {
                 }
                 window.setView(view);
                 window.display();
+                continue;
             }
+            fftInput->handleEvent(*event);
         }
 
         auto fftData = fftInput->getFFT();

@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include <queue>
 #include <optional>
 #include <array>
@@ -21,5 +22,6 @@ protected:
 public:
     virtual ~FFTInput() = default;
     std::optional<std::array<std::complex<float>, DFT_SIZE>> getFFT();
+    virtual void handleEvent(const sf::Event& event) {}
 
 };
