@@ -27,7 +27,7 @@ void FileInput::effectProcessor(const float *inputFrames, unsigned int &inputFra
 
 void FileInput::handleEvent(const sf::Event &event)
 {
-    if (const auto* keypressEvent = event.getIf<sf::Event::KeyPressed>())
+    if (const auto *keypressEvent = event.getIf<sf::Event::KeyPressed>())
     {
         using sf::Keyboard::Key;
         switch (keypressEvent->code)
@@ -43,6 +43,19 @@ void FileInput::handleEvent(const sf::Event &event)
             }
             break;
 
+        case Key::Up:
+        case Key::Down:
+        {   
+            auto volumeOffset = keypressEvent->control ? 10 : 1;
+            if (keypressEvent->code == Key::Down)
+            {
+                volumeOffset = -volumeOffset;
+            }
+            auto volume = std::clamp(source->getVolume() + volumeOffset, 0.f, 100.f);
+            source->setVolume(volume);
+        }
+        break;
+
         case Key::Left:
         case Key::Right:
         {
@@ -54,7 +67,7 @@ void FileInput::handleEvent(const sf::Event &event)
             sf::Time seekOffset = sf::seconds(keypressEvent->control ? 30 : 5);
             if (keypressEvent->code == Key::Left)
                 seekOffset = -seekOffset;
-            
+
             currentTime += seekOffset;
 
             if (currentTime < sf::Time::Zero)
@@ -77,5 +90,5 @@ void FileInput::handleEvent(const sf::Event &event)
 
 float FileInput::getTime()
 {
-    return static_cast<float>(source->getPlayingOffset().asMilliseconds())/source->getDuration().asMilliseconds();
+    return static_cast<float>(source->getPlayingOffset().asMilliseconds()) / source->getDuration().asMilliseconds();
 }

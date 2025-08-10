@@ -7,11 +7,13 @@
 #include <math.h>
 #include <thread>
 
+using namespace std;
+
 sf::Color HStoRGB(float H, float S)
 {
-    S = std::clamp(S, 0.f, 1.f);
-	float HPrime = std::fmod(H / (M_PIf / 3), 6.f); // H'
-	float X = S * (1 - std::fabs(std::fmod(HPrime, 2.f) - 1));
+    S = clamp(S, 0.f, 1.f);
+	float HPrime = fmod(H / (M_PIf / 3), 6.f); // H'
+	float X = S * (1 - fabs(fmod(HPrime, 2.f) - 1));
 	float M = 1 - S;
 
 	float R = 0.f;
@@ -33,34 +35,35 @@ sf::Color HStoRGB(float H, float S)
 	B += M;
 
 	sf::Color color;
-	color.r = std::round<uint8_t>(R * 255);
-	color.g = std::round<uint8_t>(G * 255);
-	color.b = std::round<uint8_t>(B * 255);
+	color.r = round<uint8_t>(R * 255);
+	color.g = round<uint8_t>(G * 255);
+	color.b = round<uint8_t>(B * 255);
 
 	return color;
 }
 
 int main(int argc, char *argv[]) {
-    std::cout << "Starting SFML" << std::endl;
+    cout << "Starting SFML" << endl;
 
     sf::RenderWindow window(sf::VideoMode({800, 800}), argv[0]);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    std::unique_ptr<FFTInput> fftInput;
+    unique_ptr<FFTInput> fftInput;
     if (argc > 1) {
-        std::cout << "Using file input: " << argv[1] << std::endl;
-        auto music = std::make_unique<sf::Music>(argv[1]);
-        fftInput = std::make_unique<FileInput>(std::move(music));
+        using namespace filesystem;
+        path filename{argv[1]};
+        cout << "Using file input: " << relative(filename) << endl;
+        window.setTitle(filename.stem().string());
+        fftInput = make_unique<FileInput>(make_unique<sf::Music>(filename));
     } else {
-        std::cout << "Using microphone input" << std::endl;
-        fftInput = std::make_unique<MicInput>();
+        cout << "Using microphone input" << endl;
+        fftInput = make_unique<MicInput>();
     }
     sf::View fftView = {{0, 0}, {10, 10}};
     sf::View barView = window.getDefaultView();
     window.setFramerateLimit(100);
     float bassAccumulator = 0;
     while (window.isOpen()) {
-        std::optional<sf::Event> event;
+        optional<sf::Event> event;
         while (event = window.pollEvent()) {
 
             if (event->is<sf::Event::Closed>()) {
@@ -85,15 +88,15 @@ int main(int argc, char *argv[]) {
         auto fftData = fftInput->getFFT();
         if(fftData.has_value())
         {
-            std::array<float, DFT_SIZE> mag;
+            array<float, DFT_SIZE> mag;
             for (size_t i = 0; i < mag.size(); ++i) {
-                mag[i] = std::log(std::abs((*fftData)[i]) + 1);
+                mag[i] = log(abs((*fftData)[i]) + 1);
             }
 
-            bassAccumulator += (M_PI_2f-std::fmod(bassAccumulator + M_PI_2f, M_PIf)) * 0.2f;
+            bassAccumulator += (M_PI_2f-fmod(bassAccumulator + M_PI_2f, M_PIf)) * 0.2f;
             for (size_t i = 0; i < DFT_SIZE/32; i++)
             {
-                bassAccumulator += std::max(mag[i] - 2.f, 0.f) * 0.05f;
+                bassAccumulator += max(mag[i] - 2.f, 0.f) * 0.05f;
             }
             float tilt = sin(bassAccumulator) * M_PI/100;
             
@@ -104,11 +107,11 @@ int main(int argc, char *argv[]) {
                 size_t i2 = (i - 1)  % DFT_SIZE;
                 float graphValue = mag[i2];
                 vertexArray[i].position = sf::Vector2f(graphValue + 1.5, sf::radians(2 * M_PIf * i2 / DFT_SIZE + M_PI_2 + tilt));
-                vertexArray[i].color = HStoRGB(std::clamp(graphValue*4, 0.f, 2*M_PIf), std::sqrt(graphValue));
+                vertexArray[i].color = HStoRGB(clamp(graphValue*4, 0.f, 2*M_PIf), sqrt(graphValue));
             }
 
             sf::Vector2f windowSize = barView.getSize();
-            float barHeight = std::max(10.f, windowSize.y * 0.015f);
+            float barHeight = max(10.f, windowSize.y * 0.015f);
             sf::RectangleShape rect({fftInput->getTime() * windowSize.x, barHeight});
             rect.setOrigin(rect.getPoint(3));
             rect.setPosition({0, windowSize.y});
