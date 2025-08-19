@@ -6,7 +6,8 @@ MicInput::MicInput() {
     {
         throw std::runtime_error("No default audio capture device found");
     }
-    setDevice(device);
+    if(!setDevice(device))
+        throw std::runtime_error("Failed to set audio capture device: " + device);
     setChannelCount(1);
     if (!start(48000)) {
         throw std::runtime_error("Failed to start FFTInput");
