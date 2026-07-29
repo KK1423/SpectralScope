@@ -5,6 +5,7 @@
 #include <complex>
 
 #include <cmath>
+#include "math_constants.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ array<complex<float>, DFT_SIZE> twiddle = []()
     array<complex<float>, DFT_SIZE> factors;
     for (size_t i = 0; i < DFT_SIZE; ++i)
     {
-        factors[i] = std::exp(-2.0f * M_PIf * std::complex<float>(0, 1) * static_cast<float>(i) / static_cast<float>(DFT_SIZE));
+        factors[i] = std::exp(-2.0f * fft::PI * std::complex<float>(0, 1) * static_cast<float>(i) / static_cast<float>(DFT_SIZE));
     }
     return factors;
 }();
@@ -35,7 +36,7 @@ array<float, DFT_SIZE> cos_window = []()
     array<float, DFT_SIZE> window;
     for (size_t i = 0; i < DFT_SIZE; ++i)
     {
-        float f = 2 * M_PI * static_cast<float>(i) / DFT_SIZE;
+        float f = 2 * fft::PI * static_cast<float>(i) / DFT_SIZE;
         // blackman-nuttall
         //window[i] = 0.3636 - 0.4892 * cos(f) + 0.1366 * cos(2 * f) - 0.01064 * cos(3 * f);
         // flat top

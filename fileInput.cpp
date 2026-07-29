@@ -1,4 +1,5 @@
 #include "fileInput.h"
+#include <algorithm>
 
 void FileInput::effectProcessor(const float *inputFrames, unsigned int &inputFrameCount,
                                 float *outputFrames, unsigned int &outputFrameCount,

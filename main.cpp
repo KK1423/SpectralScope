@@ -4,7 +4,10 @@
 #include "fftInput.h"
 #include "micInput.h"
 #include "fileInput.h"
+#include <filesystem>
 #include <math.h>
+#include <algorithm>
+#include "math_constants.h"
 #include <thread>
 
 using namespace std;
@@ -12,7 +15,7 @@ using namespace std;
 sf::Color HStoRGB(float H, float S)
 {
     S = clamp(S, 0.f, 1.f);
-	float HPrime = fmod(H / (M_PIf / 3), 6.f); // H'
+    float HPrime = fmod(H / (fft::PI / 3.f), 6.f); // H'
 	float X = S * (1 - fabs(fmod(HPrime, 2.f) - 1));
 	float M = 1 - S;
 
@@ -35,9 +38,9 @@ sf::Color HStoRGB(float H, float S)
 	B += M;
 
 	sf::Color color;
-	color.r = round<uint8_t>(R * 255);
-	color.g = round<uint8_t>(G * 255);
-	color.b = round<uint8_t>(B * 255);
+    color.r = static_cast<uint8_t>(std::round(R * 255));
+    color.g = static_cast<uint8_t>(std::round(G * 255));
+    color.b = static_cast<uint8_t>(std::round(B * 255));
 
 	return color;
 }
@@ -93,12 +96,12 @@ int main(int argc, char *argv[]) {
                 mag[i] = log(abs((*fftData)[i]) + 1);
             }
 
-            bassAccumulator += (M_PI_2f-fmod(bassAccumulator + M_PI_2f, M_PIf)) * 0.2f;
+            bassAccumulator += (fft::HALF_PI - fmod(bassAccumulator + fft::HALF_PI, fft::PI)) * 0.2f;
             for (size_t i = 0; i < DFT_SIZE/32; i++)
             {
                 bassAccumulator += max(mag[i] - 2.f, 0.f) * 0.05f;
             }
-            float tilt = sin(bassAccumulator) * M_PI/100;
+            float tilt = sin(bassAccumulator) * fft::PI / 100.f;
             
 
             sf::VertexArray vertexArray(sf::PrimitiveType::TriangleFan, DFT_SIZE + 2);
@@ -106,8 +109,8 @@ int main(int argc, char *argv[]) {
             for (size_t i = 1; i < DFT_SIZE + 2; ++i) {
                 size_t i2 = (i - 1)  % DFT_SIZE;
                 float graphValue = mag[i2];
-                vertexArray[i].position = sf::Vector2f(graphValue + 1.5, sf::radians(2 * M_PIf * i2 / DFT_SIZE + M_PI_2 + tilt));
-                vertexArray[i].color = HStoRGB(clamp(graphValue*4, 0.f, 2*M_PIf), sqrt(graphValue));
+                vertexArray[i].position = sf::Vector2f(graphValue + 1.5, sf::radians(2 * fft::PI * i2 / DFT_SIZE + fft::HALF_PI + tilt));
+                vertexArray[i].color = HStoRGB(clamp(graphValue*4, 0.f, 2*fft::PI), sqrt(graphValue));
             }
 
             sf::Vector2f windowSize = barView.getSize();

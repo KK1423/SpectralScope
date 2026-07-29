@@ -1,4 +1,5 @@
 #include "fftInput.h"
+#include "math_constants.h"
 #include <stdexcept>
 #include <vector>
 #include "fft.h"
@@ -14,7 +15,7 @@ const std::array<float, DECIM*FFTInput::filterSize> FFTInput::sincCoefficients =
         if (x == 0.0f) {
             ret[i] = excessBandwidth * 1.f/DECIM;
         } else {
-            ret[i] = std::sin(excessBandwidth * M_PI * x / DECIM) / (M_PI * x);
+            ret[i] = std::sin(excessBandwidth * fft::PI * x / DECIM) / (fft::PI * x);
         }
     }
     return ret;
