@@ -1,4 +1,5 @@
 #pragma once
+#include "config.h"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <queue>

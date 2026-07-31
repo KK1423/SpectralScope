@@ -1,9 +1,13 @@
 #include <iostream>
+#include "config.h"
 
 #include <SFML/Graphics.hpp>
 #include "fftInput.h"
 #include "micInput.h"
 #include "fileInput.h"
+#ifdef ENABLE_WINDOWS_LOOPBACK
+#include "loopbackInput.h"
+#endif
 #include <filesystem>
 #include <math.h>
 #include <algorithm>
@@ -48,18 +52,31 @@ sf::Color HStoRGB(float H, float S)
 int main(int argc, char *argv[]) {
     cout << "Starting SFML" << endl;
 
-    sf::RenderWindow window(sf::VideoMode({800, 800}), argv[0]);
+    sf::RenderWindow window(sf::VideoMode({800, 800}), APP_WINDOW_TITLE);
 
     unique_ptr<FFTInput> fftInput;
     if (argc > 1) {
         using namespace filesystem;
         path filename{argv[1]};
         cout << "Using file input: " << relative(filename) << endl;
-        window.setTitle(filename.stem().string());
+        std::string title = APP_WINDOW_TITLE;
+        title += " - ";
+        title += filename.stem().string();
+        window.setTitle(title);
         fftInput = make_unique<FileInput>(make_unique<sf::Music>(filename));
     } else {
+#ifdef ENABLE_WINDOWS_LOOPBACK
+        try {
+            cout << "Using Windows loopback input" << endl;
+            fftInput = make_unique<LoopbackInput>();
+        } catch (const std::exception &e) {
+            cerr << "Loopback initialization failed: " << e.what() << "; falling back to microphone" << endl;
+            fftInput = make_unique<MicInput>();
+        }
+#else
         cout << "Using microphone input" << endl;
         fftInput = make_unique<MicInput>();
+#endif
     }
     sf::View fftView = {{0, 0}, {10, 10}};
     sf::View barView = window.getDefaultView();

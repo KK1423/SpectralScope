@@ -1,3 +1,5 @@
+#pragma once
+#include "config.h"
 #include <stdint.h>
 #include <vector>
 #include <array>
